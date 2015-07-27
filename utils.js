@@ -30,7 +30,7 @@ var api = {
         if (domainParts.length > 2) {
             throw new Error('Invalid port given in url!');
         } else if (domainParts.length === 2) {
-            port = parseInt(domainParts[0], 10);
+            port = parseInt(domainParts[1], 10);
         }
         if (port === null) {
             if (result.protocol === 'http') {
@@ -64,7 +64,6 @@ var api = {
                 headers['Content-Type'] = 'text';
             }
         }
-
         var requestConfig = {
             method: method,
             headers: headers,
@@ -79,13 +78,13 @@ var api = {
         var request = httpSync.request(requestConfig);
 
         var timedOut = false;
-        request.setTimeout(40000, function () {
+        request.setTimeout(50000, function () {
             timedOut = true;
         });
 
         var response = request.end();
         if (timedOut) {
-            throw new Error('Unit test "' + name + '" failed because of a request time out!');
+            throw new Error('Request timed out!');
         }
         var statusCode = response.statusCode;
         return {statusCode: statusCode, body: response.body.toString()}

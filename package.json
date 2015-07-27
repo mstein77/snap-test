@@ -1,14 +1,14 @@
 {
   "name": "snap-test",
-  "description": "TODO",
-  "version": "0.0.1",
+  "description": "",
+  "version": "0.0.2",
   "repository": {
     "type": "git",
     "url": "http://github.com/mstein77/snap-test.git"
   },
   "homepage": "https://github.com/mstein77/snap-test",
   "bugs": "https://github.com/mstein77/snap-test/issues",
-  "license": "none",
+  "license": "MIT",
   "author": {
     "name": "Marc Stein",
     "email": "mstein77@users.noreply.github.com",
@@ -22,6 +22,8 @@
   "devDependencies": {
   },
   "dependencies": {
+    "cli-color": "1.0.0",
+    "diff": "1.4.0",
     "http-sync": "0.1.1",
     "lodash": "^3.9.3",
     "md5": "2.0.0",
