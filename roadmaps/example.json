@@ -1,0 +1,7 @@
+{
+  "path/to/get-method": null,
+  "path/to/post-method": {
+    "myArg1": "foo",
+    "myArg2": "bar"
+  }
+}
