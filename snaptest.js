@@ -34,18 +34,10 @@ function doSnapTest(roadMapPath, urlPrefix) {
         }
         if (response.statusCode !== targetJson.statusCode) {
             console.log(colors.red('ERROR: Status code mismatch!'));
-            console.log('--- CURRENT ---');
-            console.log(response.statusCode);
-            console.log('--- EXPECTED ---');
-            console.log(targetJson.statusCode);
             console.log('--- DIFF ---');
             printDiff(response.statusCode, targetJson.statusCode);
         } else if (response.body !== targetJson.body) {
             console.log(colors.red('ERROR: Body mismatch!'));
-            console.log('--- CURRENT ---');
-            console.log(response.body);
-            console.log('--- EXPECTED ---');
-            console.log(targetJson.body);
             console.log('--- DIFF ---');
             printDiff(response.body, targetJson.body);
         } else {
@@ -68,12 +60,14 @@ function printDiff(expected, current) {
     var diff = jsdiff.diffChars(expected, current);
 
     diff.forEach(function (part) {
-        var clr = part.added ? 'green' :
-            part.removed ? 'red' : null;
+        var bgClr = part.added ? 'bgGreenBright' :
+            part.removed ? 'bgRedBright' : null;
+        var clr = part.added ? 'black' :
+            part.removed ? 'whiteBright' : null;
         if (_.isNull(clr)) {
             process.stderr.write(part.value);
         } else {
-            process.stderr.write(colors[clr](part.value));
+            process.stderr.write(colors[bgClr][clr](part.value));
         }
     })
 };
