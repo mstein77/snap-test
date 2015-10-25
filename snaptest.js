@@ -1,6 +1,5 @@
 var fs = require('fs'),
     _ = require('lodash'),
-    md5 = require('md5'),
     utils = require('./utils.js'),
     colors = require('cli-color'),
     jsdiff = require('diff');
@@ -20,7 +19,6 @@ function doSnapTest(roadMapPath, urlPrefix) {
     for (target in roadMap) {
         console.log('==================');
         var targetFilePath = utils.getSouvenirPathForTarget(souvenirPath, target);
-
         try {
             var targetJson = utils.getJsonFromFile(targetFilePath);
         } catch (e) {
@@ -36,8 +34,10 @@ function doSnapTest(roadMapPath, urlPrefix) {
         }
         if (response.statusCode !== targetJson.statusCode) {
             console.log(colors.red('ERROR: Status code mismatch!'));
-            console.log('--- DIFF ---');
-            printDiff(response.statusCode, targetJson.statusCode);
+            console.log('--- EXPECTED ---');
+            console.log(targetJson.statusCode);
+            console.log('--- ACTUAL ---');
+            console.log(response.statusCode);
         } else if (response.body !== targetJson.body) {
             console.log(colors.red('ERROR: Body mismatch!'));
             console.log('--- EXPECTED ---');

@@ -4,7 +4,7 @@ var httpSync = require('http-sync-4'),
     fs = require('fs'),
     _ = require('lodash'),
     rmdirRecursive = require('rimraf'),
-    md5 = require('md5');
+    crypto = require('crypto');
 
 class BootInfo {
 
@@ -24,6 +24,11 @@ class BootInfo {
 var api = {
     arguments: null,
     roadMapPath: null,
+    config: null,
+
+    md5: function md5(value) {
+        return crypto.createHash('md5').update(value).digest('hex');
+    },
 
     extractUrlParts: function (url) {
         var parts,
@@ -168,8 +173,14 @@ var api = {
         return path;
     },
 
+    getConfigFilePath: function () {
+        let path = api.getRoadMapPath();
+        path = path.substr(0, path.length - 4) + 'conf.json';
+        return path;
+    },
+
     getSouvenirIdForRoadMapPath: function (path) {
-        return md5(fs.realpathSync(path));
+        return api.md5(fs.realpathSync(path));
     },
 
     getSouvenirPathForRoadMapPath: function (path) {
@@ -178,7 +189,7 @@ var api = {
     },
 
     getSouvenirPathForTarget: function (souvenirPath, target) {
-        var targetId = md5(target);
+        var targetId = api.md5(target);
         var path = souvenirPath + '/' + targetId + '.json';
         return path;
     },
@@ -186,7 +197,7 @@ var api = {
     getBaseUrlFromArguments: function () {
         var baseUrl = api.shiftArgument();
         if (_.isNull(baseUrl)) {
-            return '';
+            baseUrl = api.getConfigValue('base_url', '');
         }
         return baseUrl;
     },
@@ -214,8 +225,9 @@ var api = {
     },
 
     getBootInfo: function () {
-        let bootInfo = new BootInfo();
-        let bootFile = api.getBootFilePath();
+        let bootInfo = new BootInfo(),
+            bootFile = api.getBootFilePath();
+
         if (api.hasFile(bootFile)) {
             let boot = require(bootFile);
             console.log('Booting...');
@@ -223,6 +235,22 @@ var api = {
             console.log('..Done!');
         }
         return bootInfo;
+    },
+
+    getConfigValue: function (key, dfault) {
+        if (_.isNull(api.config)) {
+            let configPath = api.getConfigFilePath();
+            if (api.hasFile(configPath)) {
+                api.config = api.getJsonFromFile(configPath);
+            }
+        }
+        if (api.config.hasOwnProperty(key)) {
+            return api.config[key];
+        }
+        if (_.isUndefined(dfault)) {
+            throw new Error('Missing config value "' + key + '"');
+        }
+        return dfault;
     }
 };
 
