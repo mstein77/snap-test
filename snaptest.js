@@ -15,6 +15,8 @@ function doSnapTest(roadMapPath, urlPrefix) {
     console.log('Processing road map file "' + roadMapPath + '":');
     var souvenirPath = utils.getSouvenirPathForRoadMapPath(roadMapPath);
 
+    var bootInfo = utils.getBootInfo();
+
     for (target in roadMap) {
         console.log('==================');
         var targetFilePath = utils.getSouvenirPathForTarget(souvenirPath, target);
@@ -28,7 +30,7 @@ function doSnapTest(roadMapPath, urlPrefix) {
         payload = roadMap[target];
         url = urlPrefix + target;
 
-        response = utils.getHttpResponse(url, payload);
+        response = utils.getHttpResponse(url, payload, bootInfo.getHeaders());
         if (_.isNull(response)) {
             console.log(colors.red('ERROR! Request timed out!'));
         }
@@ -38,6 +40,10 @@ function doSnapTest(roadMapPath, urlPrefix) {
             printDiff(response.statusCode, targetJson.statusCode);
         } else if (response.body !== targetJson.body) {
             console.log(colors.red('ERROR: Body mismatch!'));
+            console.log('--- EXPECTED ---');
+            console.log(targetJson.body);
+            console.log('--- ACTUAL ---');
+            console.log(response.body);
             console.log('--- DIFF ---');
             printDiff(response.body, targetJson.body);
         } else {
@@ -46,12 +52,13 @@ function doSnapTest(roadMapPath, urlPrefix) {
     }
 }
 
-var roadMapPath = utils.getRoadMapPathFromArguments();
+var roadMapPath = utils.getRoadMapPath();
 
 if (_.isNull(roadMapPath)) {
     console.log('Usage: snaptest <filename> <baseurl>');
 } else {
     var baseUrl = utils.getBaseUrlFromArguments();
+
     doSnapTest(roadMapPath, baseUrl);
 }
 

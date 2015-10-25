@@ -1,11 +1,29 @@
-var httpSync = require('http-sync'),
+'use strict';
+
+var httpSync = require('http-sync-4'),
     fs = require('fs'),
     _ = require('lodash'),
     rmdirRecursive = require('rimraf'),
     md5 = require('md5');
 
+class BootInfo {
+
+    constructor() {
+        this.headers = {};
+    }
+
+    getHeaders() {
+        return this.headers;
+    }
+
+    addHeader(name, value) {
+        this.headers[name] = value;
+    }
+}
+
 var api = {
     arguments: null,
+    roadMapPath: null,
 
     extractUrlParts: function (url) {
         var parts,
@@ -48,10 +66,13 @@ var api = {
         return result;
     },
 
-    getHttpResponse: function (url, payload) {
-        var headers = {},
-            body = null,
+    getHttpResponse: function (url, payload, headers) {
+        var body = null,
             method = _.isNull(payload) ? 'GET' : 'POST';
+
+        if (_.isUndefined(headers)) {
+            headers = {};
+        }
 
         var urlParts = api.extractUrlParts(url);
 
@@ -78,7 +99,7 @@ var api = {
         var request = httpSync.request(requestConfig);
 
         var timedOut = false;
-        request.setTimeout(50000, function () {
+        request.setTimeout(90000, function () {
             timedOut = true;
         });
 
@@ -127,14 +148,23 @@ var api = {
         return json;
     },
 
-    getRoadMapPathFromArguments: function () {
-        var path = api.shiftArgument();
-        if (_.isNull(path)) {
-            return null;
+    getRoadMapPath: function () {
+        if (_.isNull(api.roadMapPath)) {
+            var path = api.shiftArgument();
+            if (_.isNull(path)) {
+                return null;
+            }
+            if (!_.endsWith(path.toLowerCase(), '.json')) {
+                path = path + '.json';
+            }
+            api.roadMapPath = path;
         }
-        if (!_.endsWith(path.toLowerCase(), '.json')) {
-            path = path + '.json';
-        }
+        return api.roadMapPath;
+    },
+
+    getBootFilePath: function () {
+        let path = api.getRoadMapPath();
+        path = path.substr(0, path.length - 4) + 'boot.js';
         return path;
     },
 
@@ -172,6 +202,27 @@ var api = {
             throw new Error('ERROR - failed to parse roadmap JSON file : ' + path);
         }
         return roadMapJSON;
+    },
+
+    hasFile: function (name) {
+        try {
+            var result = fs.statSync(name);
+        } catch (e) {
+            return false;
+        }
+        return true;
+    },
+
+    getBootInfo: function () {
+        let bootInfo = new BootInfo();
+        let bootFile = api.getBootFilePath();
+        if (api.hasFile(bootFile)) {
+            let boot = require(bootFile);
+            console.log('Booting...');
+            boot.run(bootInfo);
+            console.log('..Done!');
+        }
+        return bootInfo;
     }
 };
 
