@@ -4,7 +4,7 @@ var httpSync = require('http-sync-4'),
     fs = require('fs'),
     _ = require('lodash'),
     rmdirRecursive = require('rimraf'),
-    md5 = require('md5');
+    crypto = require('crypto');
 
 class BootInfo {
 
@@ -25,6 +25,10 @@ var api = {
     arguments: null,
     roadMapPath: null,
     config: null,
+
+    md5: function md5(value) {
+        return crypto.createHash('md5').update(value).digest('hex');
+    },
 
     extractUrlParts: function (url) {
         var parts,
@@ -176,7 +180,7 @@ var api = {
     },
 
     getSouvenirIdForRoadMapPath: function (path) {
-        return md5(fs.realpathSync(path));
+        return api.md5(fs.realpathSync(path));
     },
 
     getSouvenirPathForRoadMapPath: function (path) {
@@ -185,7 +189,7 @@ var api = {
     },
 
     getSouvenirPathForTarget: function (souvenirPath, target) {
-        var targetId = md5(target);
+        var targetId = api.md5(target);
         var path = souvenirPath + '/' + targetId + '.json';
         return path;
     },
