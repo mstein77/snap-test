@@ -11,6 +11,9 @@ function doSnapShot(roadMapPath, urlPrefix) {
 
     var roadMap = utils.getRoadMapFromPath(roadMapPath);
     console.log('Processing road map file "' + roadMapPath + '":');
+
+    var bootInfo = utils.getBootInfo();
+
     var souvenirPath = utils.getSouvenirPathForRoadMapPath(roadMapPath);
     utils.mkEmptyDirSync(souvenirPath);
 
@@ -18,7 +21,7 @@ function doSnapShot(roadMapPath, urlPrefix) {
         payload = roadMap[target];
         url = urlPrefix + target;
 
-        response = utils.getHttpResponse(url, payload);
+        response = utils.getHttpResponse(url, payload, bootInfo.getHeaders());
         if (_.isNull(response)) {
             console.log('ERROR! Request timed out!');
         }
@@ -30,7 +33,7 @@ function doSnapShot(roadMapPath, urlPrefix) {
     }
 }
 
-var roadMapPath = utils.getRoadMapPathFromArguments();
+var roadMapPath = utils.getRoadMapPath();
 
 if (_.isNull(roadMapPath)) {
     console.log('Usage: snapshot <filename> <baseurl>');
