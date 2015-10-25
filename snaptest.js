@@ -36,8 +36,10 @@ function doSnapTest(roadMapPath, urlPrefix) {
         }
         if (response.statusCode !== targetJson.statusCode) {
             console.log(colors.red('ERROR: Status code mismatch!'));
-            console.log('--- DIFF ---');
-            printDiff(response.statusCode, targetJson.statusCode);
+            console.log('--- EXPECTED ---');
+            console.log(targetJson.statusCode);
+            console.log('--- ACTUAL ---');
+            console.log(response.statusCode);
         } else if (response.body !== targetJson.body) {
             console.log(colors.red('ERROR: Body mismatch!'));
             console.log('--- EXPECTED ---');

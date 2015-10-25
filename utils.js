@@ -24,6 +24,7 @@ class BootInfo {
 var api = {
     arguments: null,
     roadMapPath: null,
+    config: null,
 
     extractUrlParts: function (url) {
         var parts,
@@ -168,6 +169,12 @@ var api = {
         return path;
     },
 
+    getConfigFilePath: function () {
+        let path = api.getRoadMapPath();
+        path = path.substr(0, path.length - 4) + 'conf.json';
+        return path;
+    },
+
     getSouvenirIdForRoadMapPath: function (path) {
         return md5(fs.realpathSync(path));
     },
@@ -186,7 +193,7 @@ var api = {
     getBaseUrlFromArguments: function () {
         var baseUrl = api.shiftArgument();
         if (_.isNull(baseUrl)) {
-            return '';
+            baseUrl = api.getConfigValue('base_url', '');
         }
         return baseUrl;
     },
@@ -214,8 +221,9 @@ var api = {
     },
 
     getBootInfo: function () {
-        let bootInfo = new BootInfo();
-        let bootFile = api.getBootFilePath();
+        let bootInfo = new BootInfo(),
+            bootFile = api.getBootFilePath();
+
         if (api.hasFile(bootFile)) {
             let boot = require(bootFile);
             console.log('Booting...');
@@ -223,6 +231,22 @@ var api = {
             console.log('..Done!');
         }
         return bootInfo;
+    },
+
+    getConfigValue: function (key, dfault) {
+        if (_.isNull(api.config)) {
+            let configPath = api.getConfigFilePath();
+            if (api.hasFile(configPath)) {
+                api.config = api.getJsonFromFile(configPath);
+            }
+        }
+        if (api.config.hasOwnProperty(key)) {
+            return api.config[key];
+        }
+        if (_.isUndefined(dfault)) {
+            throw new Error('Missing config value "' + key + '"');
+        }
+        return dfault;
     }
 };
 
