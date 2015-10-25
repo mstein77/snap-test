@@ -1,6 +1,5 @@
 var fs = require('fs'),
     _ = require('lodash'),
-    md5 = require('md5'),
     utils = require('./utils.js');
 
 function doSnapShot(roadMapPath, urlPrefix) {
