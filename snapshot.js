@@ -14,9 +14,22 @@ function doSnapShot(roadMapPath, urlPrefix) {
     var bootInfo = utils.getBootInfo();
 
     var souvenirPath = utils.getSouvenirPathForRoadMapPath(roadMapPath);
-    utils.mkEmptyDirSync(souvenirPath);
+    var fixTestcases = utils.getTestcases();
+    if (_.isEmpty(fixTestcases)) {
+        utils.mkEmptyDirSync(souvenirPath);
+    }
+
+    var no = 0;
 
     for (target in roadMap) {
+        no++;
+        if (!_.isEmpty(fixTestcases) && !_.contains(fixTestcases, no)) {
+            continue;
+        }
+
+        console.log('');
+        console.log( 'Testcase #' + no + ' ==================');
+
         payload = roadMap[target];
         url = urlPrefix + target;
 
@@ -32,11 +45,12 @@ function doSnapShot(roadMapPath, urlPrefix) {
     }
 }
 
-var roadMapPath = utils.getRoadMapPath();
-
-if (_.isNull(roadMapPath)) {
-    console.log('Usage: snapshot <filename> <baseurl>');
-} else {
+var args = utils.getArguments();
+if (args.hasOwnProperty('args') || args.length === 1) {
+    var roadMapPath = utils.getRoadMapPath();
     var baseUrl = utils.getBaseUrlFromArguments();
+
     doSnapShot(roadMapPath, baseUrl);
+} else {
+    args.printHelp();
 }
