@@ -3,6 +3,7 @@
 var httpSync = require('http-sync-4'),
     fs = require('fs'),
     _ = require('lodash'),
+    stdio = require('stdio'),
     rmdirRecursive = require('rimraf'),
     crypto = require('crypto');
 
@@ -131,6 +132,20 @@ var api = {
         return api.arguments.shift();
     },
 
+    getArguments: function () {
+        if (_.isNull(api.arguments)) {
+            api.arguments = stdio.getopt({
+                'baseurl': {args: 1, key: 'b', description: 'The base url which is used as prefix'},
+                'testcases': {
+                    key: 't',
+                    args: 1,
+                    description: 'A comma separated list of test case numbers which should be executed'
+                }
+            });
+        }
+        return api.arguments;
+    },
+
     mkEmptyDirSync: function (path) {
         try {
             fs.mkdirSync(path);
@@ -155,7 +170,7 @@ var api = {
 
     getRoadMapPath: function () {
         if (_.isNull(api.roadMapPath)) {
-            var path = api.shiftArgument();
+            var path = api.getArguments().args[0];
             if (_.isNull(path)) {
                 return null;
             }
@@ -195,11 +210,24 @@ var api = {
     },
 
     getBaseUrlFromArguments: function () {
-        var baseUrl = api.shiftArgument();
+        var args = api.getArguments();
+        var baseUrl = (args.hasOwnProperty('baseurl')) ? args.baseurl : null;
         if (_.isNull(baseUrl)) {
             baseUrl = api.getConfigValue('base_url', '');
         }
         return baseUrl;
+    },
+
+    getTestcases: function () {
+        var args = api.getArguments();
+        var result = [];
+        if (args.hasOwnProperty('testcases')) {
+            let ids = args.testcases.split(',');
+            ids.forEach((id) => {
+                result.push(parseInt(_.trim(id), 10));
+            });
+        }
+        return result;
     },
 
     getRoadMapFromPath: function (path) {
