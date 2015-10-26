@@ -177,7 +177,7 @@ var api = {
             if (!_.endsWith(path.toLowerCase(), '.json')) {
                 path = path + '.json';
             }
-            api.roadMapPath = fs.realpath(path);
+            api.roadMapPath = fs.realpathSync(path);
         }
         return api.roadMapPath;
     },
