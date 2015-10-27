@@ -61,18 +61,14 @@ function doSnapTest(roadMapPath, urlPrefix) {
             failed.push(no);
         } else if (response.body !== targetJson.body) {
             console.log(colors.red('ERROR: Body mismatch!'));
+            /*
             console.log('--- EXPECTED ---');
             console.log(targetJson.body);
             console.log('--- ACTUAL ---');
             console.log(response.body);
-
+            */
             console.log('--- DIFF ---');
-            let max = 5000;
-            if ((response.body.length < max) && (targetJson.body.length < max)) {
-                printDiff(response.body, targetJson.body);
-            } else {
-                console.log(colors.red('Body too large for diff: ' + response.body.length + ' != ' + targetJson.body.length + ' bytes'));
-            }
+            printDiff(response.body, targetJson.body);
             failed.push(no);
         } else {
             console.log(colors.green('OK!'));
@@ -114,7 +110,21 @@ if (args.hasOwnProperty('args') || args.length === 1) {
 
 function printDiff(expected, current) {
 
-    var diff = jsdiff.diffChars(expected, current);
+    let diff,
+        expectedJson = false,
+        currentJson = false;
+
+    try {
+        expectedJson = JSON.parse(expected);
+        currentJson = JSON.parse(current);
+    } catch (e) {
+    }
+
+    if (expectedJson !== false && currentJson !== false) {
+        diff = jsdiff.diffJson(expectedJson, currentJson);
+    } else {
+        diff = jsdiff.diffWords(expected, current);
+    }
 
     diff.forEach(function (part) {
         var bgClr = part.added ? 'bgGreenBright' :
