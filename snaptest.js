@@ -35,7 +35,7 @@ function doSnapTest(roadMapPath, urlPrefix) {
         }
 
         console.log('');
-        console.log( 'Testcase #' + no + ' ==================');
+        console.log( 'Request #' + no + ' ==================');
         var targetFilePath = utils.getSouvenirPathForTarget(souvenirPath, target);
         try {
             var targetJson = utils.getJsonFromFile(targetFilePath);
@@ -61,12 +61,6 @@ function doSnapTest(roadMapPath, urlPrefix) {
             failed.push(no);
         } else if (response.body !== targetJson.body) {
             console.log(colors.red('ERROR: Body mismatch!'));
-            /*
-            console.log('--- EXPECTED ---');
-            console.log(targetJson.body);
-            console.log('--- ACTUAL ---');
-            console.log(response.body);
-            */
             console.log('--- DIFF ---');
             printDiff(response.body, targetJson.body);
             failed.push(no);
@@ -117,12 +111,14 @@ function printDiff(expected, current) {
     try {
         expectedJson = JSON.parse(expected);
         currentJson = JSON.parse(current);
+        diff = jsdiff.diffJson(expectedJson, currentJson);
+        if (diff.length === 1) {
+            diff = null;
+        }
     } catch (e) {
     }
 
-    if (expectedJson !== false && currentJson !== false) {
-        diff = jsdiff.diffJson(expectedJson, currentJson);
-    } else {
+    if (_.isNull(diff)) {
         diff = jsdiff.diffWords(expected, current);
     }
 

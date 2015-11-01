@@ -117,21 +117,6 @@ var api = {
         return {statusCode: statusCode, body: response.body.toString()}
     },
 
-    shiftArgument: function () {
-        if (!_.isArray(api.arguments)) {
-            api.arguments = [];
-            process.argv.forEach(function (value, index) {
-                if (index > 1) {
-                    api.arguments.push(value);
-                }
-            });
-        }
-        if (_.isEmpty(api.arguments)) {
-            return null;
-        }
-        return api.arguments.shift();
-    },
-
     getArguments: function () {
         if (_.isNull(api.arguments)) {
             api.arguments = stdio.getopt({
