@@ -104,14 +104,14 @@ if (args.hasOwnProperty('args') || args.length === 1) {
 
 function printDiff(expected, current) {
 
-    let diff,
+    let diff = null,
         expectedJson = false,
         currentJson = false;
 
     try {
         expectedJson = JSON.parse(expected);
         currentJson = JSON.parse(current);
-        diff = jsdiff.diffJson(expectedJson, currentJson);
+        diff = jsdiff.diffJson(currentJson, expectedJson);
         if (diff.length === 1) {
             diff = null;
         }
@@ -119,7 +119,7 @@ function printDiff(expected, current) {
     }
 
     if (_.isNull(diff)) {
-        diff = jsdiff.diffWords(expected, current);
+        diff = jsdiff.diffWords(current, expected);
     }
 
     diff.forEach(function (part) {

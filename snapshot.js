@@ -96,10 +96,6 @@ function doSnapShot(roadMapPath, urlPrefix) {
 
 }
 
-function coloredCode(code) {
-
-}
-
 var args = utils.getArguments();
 if (args.hasOwnProperty('args') || args.length === 1) {
     var roadMapPath = utils.getRoadMapPath();
